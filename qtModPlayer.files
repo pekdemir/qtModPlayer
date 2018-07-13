@@ -1,0 +1,8 @@
+main.cpp
+mainwindow.cpp
+mainwindow.h
+mainwindow.ui
+proxydevice.h
+qtModPlayer.pro
+xmpmoduleplayer.cpp
+xmpmoduleplayer.h
