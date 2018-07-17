@@ -94,7 +94,7 @@ void MainWindow::initLoadModule(QString path)
     MainWindow::setWindowTitle(QString("QtModPlayer [%1]").arg(player->getModuleTitle()));
 
     ui->titleEdit->setText(QString("[%1] [%2]").arg(player->getModuleTitle(), player->getModuleType()));
-    ui->typeEdit->setPlainText(QString(player->getModuleComment()));
+    ui->typeEdit->setPlainText(player->getInstrumentNames());
 
     // fill pos list
     ui->posList->clear();
@@ -258,6 +258,16 @@ void MainWindow::on_nextButton_clicked()
     {
         ui->treeWidget->setCurrentIndex(nextIndex);
         ui->treeWidget->clicked(nextIndex);
+    }else
+    {
+        QModelIndex parent = currIndex.parent();
+        QModelIndex nextParent = parent.sibling(parent.row() + 1, parent.column());
+        nextIndex = nextParent.child(0, currIndex.column());
+        if(nextIndex.isValid())
+        {
+            ui->treeWidget->setCurrentIndex(nextIndex);
+            ui->treeWidget->clicked(nextIndex);
+        }
     }
 
 }
@@ -270,6 +280,16 @@ void MainWindow::on_prevButton_clicked()
     {
         ui->treeWidget->setCurrentIndex(prevIndex);
         ui->treeWidget->clicked(prevIndex);
+    }else
+    {
+        QModelIndex parent = currIndex.parent();
+        QModelIndex prevParent = parent.sibling(parent.row() - 1, parent.column());
+        prevIndex = prevParent.child(prevParent.model()->rowCount(prevParent) - 1, currIndex.column());
+        if(prevIndex.isValid())
+        {
+            ui->treeWidget->setCurrentIndex(prevIndex);
+            ui->treeWidget->clicked(prevIndex);
+        }
     }
 }
 

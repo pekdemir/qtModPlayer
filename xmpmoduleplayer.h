@@ -32,6 +32,7 @@ public:
     char *getModuleTitle();
     char *getModuleType();
     char *getModuleComment();
+    QString getInstrumentNames();
     qint32 getModuleLength();
     qint32 getModuleBPM();
     qint32 getModuleSpeed();

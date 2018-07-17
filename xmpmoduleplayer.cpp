@@ -95,6 +95,20 @@ char *XmpModulePlayer::getModuleComment()
     return mi.comment;
 }
 
+QString XmpModulePlayer::getInstrumentNames()
+{
+    char names[4096];
+    char name[64];
+    qDebug() << "" << mi.mod->ins;
+    for(int i=0; i < mi.mod->ins; i++)
+    {
+        sprintf(name, "%s\n", mi.mod->xxi[i].name);
+        strcat(names, name);
+    }
+
+    return QString(names);
+}
+
 qint32 XmpModulePlayer::getModuleLength()
 {
     return mi.mod->len;
