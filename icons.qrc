@@ -6,5 +6,11 @@
         <file>play-button.png</file>
         <file>replay.png</file>
         <file>stop.png</file>
+        <file>music_file_xm_icon.png</file>
+        <file>folder.png</file>
+        <file>music_file_it_icon.png</file>
+        <file>music_file_mod_icon.png</file>
+        <file>music_file_s3m_icon.png</file>
+        <file>modplayericon.png</file>
     </qresource>
 </RCC>

@@ -53,8 +53,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QTreeWidgetItem* headerItem = new QTreeWidgetItem();
     headerItem->setText(0,QString("File Name"));
     headerItem->setText(1,QString("Size (Bytes)"));
-    headerItem->setText(2,QString("Type"));
-    headerItem->setText(3,QString("Path"));
+    //headerItem->setText(2,QString("Type"));
+    //headerItem->setText(3,QString("Path"));
     ui->treeWidget->setHeaderItem(headerItem);
 
     QDir* rootDir = new QDir("/home/ubuntu/Music");
@@ -62,25 +62,37 @@ MainWindow::MainWindow(QWidget *parent) :
 
     foreach(QFileInfo fileInfo, filesList)
     {
+      if(fileInfo.isFile() && fileInfo.suffix() != QString("mod") && fileInfo.suffix() != QString("xm") && fileInfo.suffix() != QString("it") && fileInfo.suffix() != QString("s3m"))
+        continue;
+
       QTreeWidgetItem* item = new QTreeWidgetItem();
       item->setText(0,fileInfo.fileName());
 
       if(fileInfo.isFile())
       {
         item->setText(1,QString::number(fileInfo.size()));
-        item->setText(2,fileInfo.suffix());
-        //item->setIcon(0,*(new QIcon("file.jpg")));
+        //item->setText(2,fileInfo.suffix());
+        if(fileInfo.suffix() == QString("mod"))
+            item->setIcon(0,QIcon(":/icon/music_file_mod_icon.png"));
+        else if(fileInfo.suffix() == QString("it"))
+            item->setIcon(0,QIcon(":/icon/music_file_it_icon.png"));
+        else if(fileInfo.suffix() == QString("s3m"))
+            item->setIcon(0,QIcon(":/icon/music_file_s3m_icon.png"));
+        else
+            item->setIcon(0,QIcon(":/icon/music_file_xm_icon.png"));
+
+        item->setData(0, Qt::UserRole, fileInfo.filePath());
       }
 
       if(fileInfo.isDir())
       {
-        //item->setIcon(0,*(new QIcon("folder.jpg")));
+        item->setIcon(0,QIcon(":/icon/folder.png"));
         addChildren(item,fileInfo.filePath());
       }
 
-      item->setText(3,fileInfo.filePath());
       ui->treeWidget->addTopLevelItem(item);
     }
+    ui->treeWidget->resizeColumnToContents(0);
 }
 
 void MainWindow::initLoadModule(QString path)
@@ -91,7 +103,7 @@ void MainWindow::initLoadModule(QString path)
     QByteArray by = path.toLocal8Bit();
     player->loadModule(by.data());
     player->startModule();
-    MainWindow::setWindowTitle(QString("QtModPlayer [%1]").arg(player->getModuleTitle()));
+    //MainWindow::setWindowTitle(QString("QtModPlayer [%1]").arg(player->getModuleTitle()));
 
     ui->titleEdit->setText(QString("[%1] [%2]").arg(player->getModuleTitle(), player->getModuleType()));
     ui->typeEdit->setPlainText(player->getInstrumentNames());
@@ -115,66 +127,88 @@ void MainWindow::addChildren(QTreeWidgetItem* item,QString filePath)
 
     foreach(QFileInfo fileInfo, filesList)
     {
+        if(fileInfo.isFile() && fileInfo.suffix() != QString("mod") && fileInfo.suffix() != QString("xm") && fileInfo.suffix() != QString("it") && fileInfo.suffix() != QString("s3m"))
+            continue;
+
         QTreeWidgetItem* child = new QTreeWidgetItem();
         child->setText(0,fileInfo.fileName());
-
+        child->setData(0, Qt::UserRole, fileInfo.filePath());
 
         if(fileInfo.isFile())
         {
           child->setText(1,QString::number(fileInfo.size()));
-          child->setText(2,fileInfo.suffix());
-          child->setText(3,fileInfo.filePath());
+          //child->setText(2,fileInfo.suffix());
+          //child->setText(3,fileInfo.filePath());
+          if(fileInfo.suffix() == QString("mod"))
+              child->setIcon(0,QIcon(":/icon/music_file_mod_icon.png"));
+          else if(fileInfo.suffix() == QString("it"))
+              child->setIcon(0,QIcon(":/icon/music_file_it_icon.png"));
+          else if(fileInfo.suffix() == QString("s3m"))
+              child->setIcon(0,QIcon(":/icon/music_file_s3m_icon.png"));
+          else
+              child->setIcon(0,QIcon(":/icon/music_file_xm_icon.png"));
         }
 
         if(fileInfo.isDir())
         {
-          //child->setIcon(0,*(new QIcon("folder.jpg")));
-          child->setText(3,fileInfo.filePath());
-
+          child->setIcon(0,QIcon(":/icon/folder.png"));
+          //child->setText(3,fileInfo.filePath());
+          //recursively adding children is closed (too slow)
+            //addChildren(child,fileInfo.filePath());
         }
+
 
         item->addChild(child);
     }
+    ui->treeWidget->resizeColumnToContents(0);
 }
 
 void MainWindow::showDirectory(QTreeWidgetItem* item, int /*column*/)
 {
+    QString filepath = item->data(0, Qt::UserRole).toString();
     // if a file is clicked (it has a type)
-    if(item->text(2) != QString(""))
+    if(filepath.endsWith("xm") || filepath.endsWith("it") || filepath.endsWith("s3m") || filepath.endsWith("mod"))
     {
-        initLoadModule(item->text(3));
+        initLoadModule(filepath);
         return;
     }
 
-    QDir* rootDir = new QDir(item->text(3));
+    QDir* rootDir = new QDir(filepath);
     QFileInfoList filesList = rootDir->entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs |QDir::Files);
 
     foreach(QFileInfo fileInfo, filesList)
     {
+        if(fileInfo.isFile() && fileInfo.suffix() != QString("mod") && fileInfo.suffix() != QString("xm") && fileInfo.suffix() != QString("it") && fileInfo.suffix() != QString("s3m"))
+            continue;
+
         QTreeWidgetItem* child = new QTreeWidgetItem();
         child->setText(0,fileInfo.fileName());
+        child->setData(0, Qt::UserRole, fileInfo.filePath());
 
         if(fileInfo.isFile())
         {
           child->setText(1,QString::number(fileInfo.size()));
-          child->setText(2,fileInfo.suffix());
-          child->setText(3,fileInfo.filePath());
-          //child->setIcon(0,*(new QIcon("file.jpg")));
+          //child->setText(2,fileInfo.suffix());
+          //child->setText(3,fileInfo.filePath());
+          if(fileInfo.suffix() == QString("mod"))
+              child->setIcon(0,QIcon(":/icon/music_file_mod_icon.png"));
+          else if(fileInfo.suffix() == QString("it"))
+              child->setIcon(0,QIcon(":/icon/music_file_it_icon.png"));
+          else if(fileInfo.suffix() == QString("s3m"))
+              child->setIcon(0,QIcon(":/icon/music_file_s3m_icon.png"));
+          else
+              child->setIcon(0,QIcon(":/icon/music_file_xm_icon.png"));
         }
 
         if(fileInfo.isDir())
         {
-          //child->setIcon(0,*(new QIcon("folder.jpg")));
-          child->setText(3,fileInfo.filePath());
+          child->setIcon(0,QIcon(":/icon/folder.png"));
+          //child->setText(3,fileInfo.filePath());
         }
 
-        if(fileInfo.isFile() && fileInfo.suffix() != QString("mod") && fileInfo.suffix() != QString("xm") && fileInfo.suffix() != QString("it") && fileInfo.suffix() != QString("s3m"))
-            continue;
-        else
-            item->addChild(child);
-
-        ui->treeWidget->resizeColumnToContents(0);
+        item->addChild(child);
     }
+    ui->treeWidget->resizeColumnToContents(0);
 }
 
 MainWindow::~MainWindow()
@@ -201,7 +235,9 @@ void MainWindow::guiUpdate(struct xmp_module_info* minfo,struct xmp_frame_info* 
 
     ui->rowInfoLabel->setText(rowInfo);    
 
-    ui->posList->setCurrentRow(finfo->pos);
+    int position = ui->posList->currentRow();
+    if(finfo->pos != position)
+        ui->posList->setCurrentRow(finfo->pos);
 
     QString bpm;
     bpm.sprintf("BPM: %03d", finfo->bpm);
