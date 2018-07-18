@@ -7,8 +7,22 @@
     <x>0</x>
     <y>0</y>
     <width>868</width>
-    <height>402</height>
+    <height>371</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="font">
+   <font>
+    <family>Ubuntu Mono</family>
+    <pointsize>11</pointsize>
+    <weight>75</weight>
+    <bold>true</bold>
+   </font>
   </property>
   <property name="windowTitle">
    <string>QtModPlayer</string>
@@ -21,10 +35,10 @@
    <widget class="QPushButton" name="playPauseButton">
     <property name="geometry">
      <rect>
-      <x>90</x>
-      <y>270</y>
+      <x>80</x>
+      <y>290</y>
       <width>70</width>
-      <height>70</height>
+      <height>50</height>
      </rect>
     </property>
     <property name="text">
@@ -44,10 +58,10 @@
    <widget class="QPushButton" name="stopButton">
     <property name="geometry">
      <rect>
-      <x>160</x>
-      <y>270</y>
+      <x>150</x>
+      <y>290</y>
       <width>70</width>
-      <height>70</height>
+      <height>50</height>
      </rect>
     </property>
     <property name="text">
@@ -67,46 +81,29 @@
    <widget class="QSlider" name="progessSlider">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>240</y>
-      <width>281</width>
+      <x>10</x>
+      <y>260</y>
+      <width>331</width>
       <height>21</height>
      </rect>
     </property>
     <property name="orientation">
      <enum>Qt::Horizontal</enum>
     </property>
-   </widget>
-   <widget class="QListWidget" name="posList">
-    <property name="geometry">
-     <rect>
-      <x>630</x>
-      <y>280</y>
-      <width>51</width>
-      <height>91</height>
-     </rect>
+    <property name="tickPosition">
+     <enum>QSlider::NoTicks</enum>
     </property>
-   </widget>
-   <widget class="QLabel" name="label">
-    <property name="geometry">
-     <rect>
-      <x>630</x>
-      <y>260</y>
-      <width>34</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Pos:</string>
+    <property name="tickInterval">
+     <number>5</number>
     </property>
    </widget>
    <widget class="QTreeWidget" name="treeWidget">
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>360</x>
       <y>10</y>
-      <width>851</width>
-      <height>221</height>
+      <width>501</width>
+      <height>331</height>
      </rect>
     </property>
     <property name="iconSize">
@@ -121,55 +118,13 @@
      </property>
     </column>
    </widget>
-   <widget class="QLabel" name="bpmLabel">
-    <property name="geometry">
-     <rect>
-      <x>690</x>
-      <y>300</y>
-      <width>71</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>BPM: 000</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="speedLabel">
-    <property name="geometry">
-     <rect>
-      <x>690</x>
-      <y>320</y>
-      <width>71</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Spd: 0</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="rowInfoLabel">
-    <property name="geometry">
-     <rect>
-      <x>690</x>
-      <y>280</y>
-      <width>81</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Row: 00/00</string>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-    </property>
-   </widget>
    <widget class="QPushButton" name="nextButton">
     <property name="geometry">
      <rect>
-      <x>230</x>
-      <y>270</y>
+      <x>220</x>
+      <y>290</y>
       <width>70</width>
-      <height>70</height>
+      <height>50</height>
      </rect>
     </property>
     <property name="text">
@@ -189,10 +144,10 @@
    <widget class="QPushButton" name="prevButton">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>270</y>
+      <x>10</x>
+      <y>290</y>
       <width>70</width>
-      <height>70</height>
+      <height>50</height>
      </rect>
     </property>
     <property name="text">
@@ -212,8 +167,8 @@
    <widget class="QPushButton" name="loopButton">
     <property name="geometry">
      <rect>
-      <x>310</x>
-      <y>280</y>
+      <x>290</x>
+      <y>290</y>
       <width>50</width>
       <height>50</height>
      </rect>
@@ -235,30 +190,56 @@
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="QPlainTextEdit" name="typeEdit">
+   <widget class="QLabel" name="timeLabel">
     <property name="geometry">
      <rect>
-      <x>400</x>
-      <y>270</y>
-      <width>211</width>
-      <height>101</height>
+      <x>10</x>
+      <y>240</y>
+      <width>91</width>
+      <height>17</height>
      </rect>
+    </property>
+    <property name="text">
+     <string>00:00/00:00</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="StatusLabel">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>220</y>
+      <width>331</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>No module loaded</string>
+    </property>
+   </widget>
+   <widget class="QPlainTextEdit" name="titleEdit">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>331</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="verticalScrollBarPolicy">
+     <enum>Qt::ScrollBarAlwaysOff</enum>
     </property>
     <property name="readOnly">
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="QLineEdit" name="titleEdit">
+   <widget class="QListWidget" name="instrumentsList">
     <property name="geometry">
      <rect>
-      <x>400</x>
-      <y>240</y>
-      <width>461</width>
-      <height>25</height>
+      <x>10</x>
+      <y>60</y>
+      <width>331</width>
+      <height>161</height>
      </rect>
-    </property>
-    <property name="readOnly">
-     <bool>true</bool>
     </property>
    </widget>
   </widget>
@@ -268,7 +249,7 @@
      <x>0</x>
      <y>0</y>
      <width>868</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>

@@ -32,12 +32,14 @@ public:
     char *getModuleTitle();
     char *getModuleType();
     char *getModuleComment();
-    QString getInstrumentNames();
+    QStringList getInstrumentNames();
     qint32 getModuleLength();
     qint32 getModuleBPM();
     qint32 getModuleSpeed();
 
     void setPosition(qint32 pos);
+    void seek(quint32 time);
+    qint32 getTotalTime();
 
     //qint32 getModuleProgress();
     void setLoop(bool loop);

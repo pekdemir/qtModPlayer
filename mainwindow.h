@@ -26,7 +26,7 @@ private slots:
     void on_stopButton_clicked();
     void guiUpdate(xmp_module_info *minfo, xmp_frame_info *finfo);
     void handleStateChanged(QAudio::State newState);
-    void on_posListItemSelected(QListWidgetItem* item);
+//    void on_posListItemSelected(QListWidgetItem* item);
     void showDirectory(QTreeWidgetItem* item, int /*column*/);
 
     void on_nextButton_clicked();
@@ -35,7 +35,12 @@ private slots:
 
     void on_loopButton_toggled(bool checked);
 
+    void on_progessSlider_sliderPressed();
+
+    void on_progessSlider_sliderReleased();
+
 private:
+    bool isSliderPressed;
     Ui::MainWindow *ui;
     XmpModulePlayer *player;
     QStringList supportedFileTypes;

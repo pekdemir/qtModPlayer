@@ -29,14 +29,15 @@ MainWindow::MainWindow(QWidget *parent) :
     //connect player to mainwindow to update gui
     connect(player, &XmpModulePlayer::sendFrameInfo, this, &MainWindow::guiUpdate);
 
-    connect(ui->posList, SIGNAL(itemClicked(QListWidgetItem*)),
-                this, SLOT(on_posListItemSelected(QListWidgetItem*)));
+//    connect(ui->posList, SIGNAL(itemClicked(QListWidgetItem*)),
+//                this, SLOT(on_posListItemSelected(QListWidgetItem*)));
 
 //    QTimer *guiUpdateTimer = new QTimer(this);
 //    connect(guiUpdateTimer, SIGNAL(timeout()), this, SLOT(guiUpdate()));
 //    guiUpdateTimer->start(1000);
+    isSliderPressed = false;
 
-    supportedFileTypes << "*.it" << "*.mod" << "*.xm";
+//    supportedFileTypes << "*.it" << "*.mod" << "*.xm";
 //    supportedFileTypes.append(QString("*.it"));
 //    supportedFileTypes.append(QString("*.mod"));
 //    supportedFileTypes.append(QString("*.xm"));
@@ -105,18 +106,24 @@ void MainWindow::initLoadModule(QString path)
     player->startModule();
     //MainWindow::setWindowTitle(QString("QtModPlayer [%1]").arg(player->getModuleTitle()));
 
-    ui->titleEdit->setText(QString("[%1] [%2]").arg(player->getModuleTitle(), player->getModuleType()));
-    ui->typeEdit->setPlainText(player->getInstrumentNames());
+    ui->titleEdit->setPlainText(QString("%1\n%2").arg(player->getModuleTitle(), player->getModuleType()));
+   // ui->typeEdit->setPlainText(player->getInstrumentNames());
+
+    ui->instrumentsList->clear();
+    ui->instrumentsList->addItems(player->getInstrumentNames());
 
     // fill pos list
-    ui->posList->clear();
-    qint32 pos = player->getModuleLength();
-    for(qint32 i=1; i<=pos; i++)
-        if(i < 10)
-            ui->posList->addItem(QString("0").append(QString::number(i)));
-        else
-            ui->posList->addItem(QString::number(i));
-    ui->posList->setCurrentRow(0);
+//    ui->posList->clear();
+//    qint32 pos = player->getModuleLength();
+//    for(qint32 i=1; i<=pos; i++)
+//        if(i < 10)
+//            ui->posList->addItem(QString("0").append(QString::number(i)));
+//        else
+//            ui->posList->addItem(QString::number(i));
+//    ui->posList->setCurrentRow(0);
+
+    //set progressslider maximum
+    ui->progessSlider->setMaximum(player->getTotalTime());
 
 }
 
@@ -173,6 +180,10 @@ void MainWindow::showDirectory(QTreeWidgetItem* item, int /*column*/)
         return;
     }
 
+    // if dir item has child dont fill again!!!
+    if(item->childCount() > 0)
+        return;
+
     QDir* rootDir = new QDir(filepath);
     QFileInfoList filesList = rootDir->entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs |QDir::Files);
 
@@ -226,26 +237,28 @@ static void display_data(struct xmp_module_info *mi, struct xmp_frame_info *fi)
 
 void MainWindow::guiUpdate(struct xmp_module_info* minfo,struct xmp_frame_info* finfo)
 {
-    qint32 progress = ((finfo->pos * finfo->num_rows) + finfo->row) * 100 / (minfo->mod->len * finfo->num_rows);
-    ui->progessSlider->setValue(progress);
+    qint32 currTimeM = (finfo->time / 1000) / 60;
+    qint32 currTimeS = (finfo->time / 1000) % 60;
+
+    qint32 totalTimeM = (finfo->total_time / 1000) / 60;
+    qint32 totalTimeS = (finfo->total_time / 1000) % 60;
+
+    QString timeInfo;
+    timeInfo.sprintf("%02d:%02d/%02d:%02d", currTimeM, currTimeS, totalTimeM, totalTimeS);
+    ui->timeLabel->setText(timeInfo);
+
+    //qint32 progress = ((finfo->pos * finfo->num_rows) + finfo->row) * 100 / (minfo->mod->len * finfo->num_rows);
+    //qint32 progress = ((float)finfo->time / (float)finfo->total_time) * 100;
+   // ui->progessSlider->setMaximum(finfo->total_time);
+
+    if(!isSliderPressed)
+        ui->progessSlider->setValue(finfo->time);
 //    printf("%d ", finfo->row);
 //    fflush(stdout);
-    QString rowInfo;
-    rowInfo.sprintf("Row: %02d/%02d", finfo->row, finfo->num_rows);
+    QString moduleInfo;
+    moduleInfo.sprintf("PAT:%02x ROW:%02x BPM:%02x SPD:%02x", finfo->pattern, finfo->row, finfo->bpm, finfo->speed);
 
-    ui->rowInfoLabel->setText(rowInfo);    
-
-    int position = ui->posList->currentRow();
-    if(finfo->pos != position)
-        ui->posList->setCurrentRow(finfo->pos);
-
-    QString bpm;
-    bpm.sprintf("BPM: %03d", finfo->bpm);
-    ui->bpmLabel->setText(bpm);
-
-    QString spd;
-    spd.sprintf("SPD: %02d", finfo->speed);
-    ui->speedLabel->setText(spd);
+    ui->StatusLabel->setText(moduleInfo.toUpper());
 }
 
 void MainWindow::on_playPauseButton_clicked()
@@ -269,11 +282,11 @@ void MainWindow::on_stopButton_clicked()
     ui->playPauseButton->setIcon(QIcon(":/icon/play-button.png"));
 }
 
-void MainWindow::on_posListItemSelected(QListWidgetItem* item)
-{
-    qint32 selection = ui->posList->currentRow();
-    player->setPosition(selection);
-}
+//void MainWindow::on_posListItemSelected(QListWidgetItem* item)
+//{
+//    qint32 selection = ui->posList->currentRow();
+//    player->setPosition(selection);
+//}
 
 
 void MainWindow::handleStateChanged(QAudio::State newState)
@@ -335,3 +348,20 @@ void MainWindow::on_loopButton_toggled(bool checked)
     player->setLoop(checked);
 }
 
+
+void MainWindow::on_progessSlider_sliderPressed()
+{
+    isSliderPressed = true;
+}
+
+void MainWindow::on_progessSlider_sliderReleased()
+{
+
+    quint32 sliderPos = ui->progessSlider->value();
+    player->seek(sliderPos);
+
+
+
+    isSliderPressed = false;
+
+}

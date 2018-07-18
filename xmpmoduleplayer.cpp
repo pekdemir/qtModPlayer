@@ -95,18 +95,17 @@ char *XmpModulePlayer::getModuleComment()
     return mi.comment;
 }
 
-QString XmpModulePlayer::getInstrumentNames()
+QStringList XmpModulePlayer::getInstrumentNames()
 {
-    char names[4096];
-    char name[64];
-    qDebug() << "" << mi.mod->ins;
-    for(int i=0; i < mi.mod->ins; i++)
+    QStringList ilist;
+    //qDebug() << "" << mi.mod->ins;
+    for(int i=1; i <= mi.mod->ins; i++)
     {
-        sprintf(name, "%s\n", mi.mod->xxi[i].name);
-        strcat(names, name);
+        QString str;
+        ilist.append(str.sprintf("%02d)%s", i, mi.mod->xxi[i].name));
     }
 
-    return QString(names);
+    return ilist;
 }
 
 qint32 XmpModulePlayer::getModuleLength()
@@ -127,6 +126,17 @@ qint32 XmpModulePlayer::getModuleSpeed()
 void XmpModulePlayer::setPosition(qint32 pos)
 {
     xmp_set_position(ctx, pos);
+}
+
+void XmpModulePlayer::seek(quint32 time)
+{
+    xmp_seek_time(ctx, time);
+}
+
+qint32 XmpModulePlayer::getTotalTime()
+{
+    xmp_get_frame_info(ctx, &fi);
+    return fi.total_time;
 }
 
 
