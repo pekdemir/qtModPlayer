@@ -8,6 +8,7 @@
 #include <QIODevice>
 #include <QByteArray>
 #include <QTimer>
+#include <QtWidgets>
 
 
 
@@ -67,7 +68,7 @@ MainWindow::MainWindow(QWidget *parent) :
         continue;
 
       QTreeWidgetItem* item = new QTreeWidgetItem();
-      item->setText(0,fileInfo.fileName());
+      item->setText(0,fileInfo.completeBaseName());
 
       if(fileInfo.isFile())
       {
@@ -138,7 +139,7 @@ void MainWindow::addChildren(QTreeWidgetItem* item,QString filePath)
             continue;
 
         QTreeWidgetItem* child = new QTreeWidgetItem();
-        child->setText(0,fileInfo.fileName());
+        child->setText(0,fileInfo.completeBaseName());
         child->setData(0, Qt::UserRole, fileInfo.filePath());
 
         if(fileInfo.isFile())
@@ -193,7 +194,7 @@ void MainWindow::showDirectory(QTreeWidgetItem* item, int /*column*/)
             continue;
 
         QTreeWidgetItem* child = new QTreeWidgetItem();
-        child->setText(0,fileInfo.fileName());
+        child->setText(0,fileInfo.completeBaseName());
         child->setData(0, Qt::UserRole, fileInfo.filePath());
 
         if(fileInfo.isFile())
@@ -219,7 +220,9 @@ void MainWindow::showDirectory(QTreeWidgetItem* item, int /*column*/)
 
         item->addChild(child);
     }
+    item->setExpanded(true);
     ui->treeWidget->resizeColumnToContents(0);
+
 }
 
 MainWindow::~MainWindow()
@@ -234,6 +237,10 @@ static void display_data(struct xmp_module_info *mi, struct xmp_frame_info *fi)
 
     fflush(stdout);
 }
+
+static char *note_name[] = {
+    "C-", "C#", "D-", "D#", "E-", "F-", "F#", "G-", "G#", "A-", "A#", "B-"
+};
 
 void MainWindow::guiUpdate(struct xmp_module_info* minfo,struct xmp_frame_info* finfo)
 {
@@ -256,9 +263,85 @@ void MainWindow::guiUpdate(struct xmp_module_info* minfo,struct xmp_frame_info* 
 //    printf("%d ", finfo->row);
 //    fflush(stdout);
     QString moduleInfo;
-    moduleInfo.sprintf("PAT:%02x ROW:%02x BPM:%02x SPD:%02x", finfo->pattern, finfo->row, finfo->bpm, finfo->speed);
+    moduleInfo.sprintf("PAT:%02x ROW:%02x BPM:%03d SPD:%02x CHN:%02d", finfo->pattern, finfo->row, finfo->bpm, finfo->speed, finfo->virt_used);
 
     ui->StatusLabel->setText(moduleInfo.toUpper());
+
+
+
+
+    static int patternIndex = -1;
+    if(patternIndex != finfo->pattern)
+    {
+        QStringList tracks;
+
+        for(int j = 0; j < finfo->num_rows / 2; j++)
+        {
+            // add dummy rows
+            QString row;
+            tracks.append(row);
+        }
+
+
+        for(int j = 0; j < finfo->num_rows; j++)
+        {
+
+            QString row;
+            for (int i = 0; i < minfo->mod->chn; i++)
+            {
+                int track = minfo->mod->xxp[finfo->pattern]->index[i];
+
+                struct xmp_event *event = &minfo->mod->xxt[track]->event[j];
+
+                if (event->note > 0x80) {
+                    row.append("=== ");
+                } else if (event->note > 0) {
+                    int note = event->note - 1;
+                    row.append(row.asprintf("%s%d ", note_name[note % 12], note / 12));
+                } else {
+                    row.append("--- ");
+                }
+
+                if (event->ins > 0) {
+                    row.append(row.asprintf("%02X ", event->ins));
+                } else {
+                    row.append("-- ");
+                }
+
+                if (event->fxt > 0) {
+                    row.append(row.asprintf("%X%02X", event->fxt, event->fxp));
+                } else {
+                    row.append("---");
+                }
+
+                row.append("|");
+            }
+            tracks.append(row);
+        }
+
+        for(int j = 0; j < finfo->num_rows / 2; j++)
+        {
+            // add dummy rows
+            QString row;
+            tracks.append(row);
+        }
+
+        ui->noteList->clear();
+        ui->noteList->addItems(tracks);
+    }else
+    {
+        patternIndex = finfo->pattern;
+
+    }
+    ui->noteList->setCurrentRow(finfo->row + finfo->num_rows / 2);
+
+    //adjust notelist scroll
+    QScrollBar *sb = ui->noteList->verticalScrollBar();
+    //int scrollpos = ((sb->maximum() + sb->minimum()) / 4) + (sb->maximum() + sb->minimum()) * ((qreal)finfo->row / (finfo->num_rows * 2));
+    int scrollpos = sb->singleStep() *  finfo->num_rows / 4;
+    scrollpos += sb->singleStep()  * finfo->row;
+    sb->setValue(scrollpos);
+
 }
 
 void MainWindow::on_playPauseButton_clicked()

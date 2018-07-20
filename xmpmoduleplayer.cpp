@@ -158,6 +158,16 @@ QAudioOutput* XmpModulePlayer::getAudio()
     return audio;
 }
 
+void XmpModulePlayer::setVolume(qint32 volume)
+{
+    qreal linearVolume = QAudio::convertVolume(volume / qreal(100.0),
+                                                     QAudio::LogarithmicVolumeScale,
+                                                     QAudio::LinearVolumeScale);
+    qDebug() << linearVolume;
+//    audio->setVolume(qRound(linearVolume * 100));
+    audio->setVolume(linearVolume + 1);
+    //    audio->setVolume(qreal(100.0) / volume );
+}
 
 void XmpModulePlayer::feedAudioSlot(char* data, qint64 size, qint64& wasRead)
 {

@@ -44,6 +44,7 @@ public:
     //qint32 getModuleProgress();
     void setLoop(bool loop);
     QAudioOutput* getAudio();
+    void setVolume(qint32 volume);
 
 
 signals:
