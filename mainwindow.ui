@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1261</width>
-    <height>541</height>
+    <width>1175</width>
+    <height>800</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -265,8 +265,8 @@
      <rect>
       <x>360</x>
       <y>10</y>
-      <width>491</width>
-      <height>491</height>
+      <width>801</width>
+      <height>331</height>
      </rect>
     </property>
     <property name="title">
@@ -302,18 +302,71 @@
      </item>
     </layout>
    </widget>
-   <widget class="QListWidget" name="noteList">
+   <widget class="QGroupBox" name="groupBox_5">
     <property name="geometry">
      <rect>
-      <x>870</x>
-      <y>30</y>
-      <width>381</width>
-      <height>471</height>
+      <x>360</x>
+      <y>350</y>
+      <width>801</width>
+      <height>351</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Pattern</string>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QListWidget" name="noteList">
+       <property name="verticalScrollBarPolicy">
+        <enum>Qt::ScrollBarAlwaysOn</enum>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QScrollArea" name="channelBarsScrollArea">
+    <property name="geometry">
+     <rect>
+      <x>360</x>
+      <y>710</y>
+      <width>801</width>
+      <height>41</height>
      </rect>
     </property>
     <property name="verticalScrollBarPolicy">
-     <enum>Qt::ScrollBarAlwaysOn</enum>
+     <enum>Qt::ScrollBarAlwaysOff</enum>
     </property>
+    <property name="widgetResizable">
+     <bool>true</bool>
+    </property>
+    <widget class="QWidget" name="scrollAreaWidgetContents_2">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>799</width>
+       <height>39</height>
+      </rect>
+     </property>
+     <widget class="QWidget" name="horizontalLayoutWidget">
+      <property name="geometry">
+       <rect>
+        <x>39</x>
+        <y>9</y>
+        <width>751</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <layout class="QHBoxLayout" name="channelBarHLayout">
+       <property name="spacing">
+        <number>1</number>
+       </property>
+       <property name="sizeConstraint">
+        <enum>QLayout::SetFixedSize</enum>
+       </property>
+      </layout>
+     </widget>
+    </widget>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
@@ -321,7 +374,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1261</width>
+     <width>1175</width>
      <height>21</height>
     </rect>
    </property>

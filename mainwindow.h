@@ -6,6 +6,7 @@
 #include <QAudio>
 #include <QListWidgetItem>
 #include <QTreeWidgetItem>
+#include <QProgressBar>
 
 namespace Ui {
 class MainWindow;
@@ -44,6 +45,7 @@ private:
     Ui::MainWindow *ui;
     XmpModulePlayer *player;
     QStringList supportedFileTypes;
+    QList<QProgressBar*> channelProgessBars;
 
 };
 

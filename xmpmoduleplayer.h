@@ -36,6 +36,7 @@ public:
     qint32 getModuleLength();
     qint32 getModuleBPM();
     qint32 getModuleSpeed();
+    qint32 getChannelNumber();
 
     void setPosition(qint32 pos);
     void seek(quint32 time);

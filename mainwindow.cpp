@@ -126,6 +126,34 @@ void MainWindow::initLoadModule(QString path)
     //set progressslider maximum
     ui->progessSlider->setMaximum(player->getTotalTime());
 
+
+    // add channel progress bars
+
+    // clear previous progressbars
+    //TODO: is it necessery to delete each items first?
+    foreach (QProgressBar* pb, channelProgessBars) {
+       delete pb;
+    }
+    channelProgessBars.clear();
+
+    //QHBoxLayout *hbox = new QHBoxLayout();
+
+
+    for(int i = 0; i < player->getChannelNumber(); i++)
+    {
+        QProgressBar *pb = new QProgressBar();
+        pb->setFormat(QString(""));
+        pb->setMaximum(256);
+        pb->setFixedSize(80, 15);
+        channelProgessBars.append(pb);
+        //hbox->addWidget(pb);
+        ui->channelBarHLayout->addWidget(pb);
+    }
+
+
+    //QVBoxLayout *vlayout = (QVBoxLayout*)ui->groupBox_5->layout();
+    //vlayout->addLayout(hbox);
+
 }
 
 void MainWindow::addChildren(QTreeWidgetItem* item,QString filePath)
@@ -268,30 +296,77 @@ void MainWindow::guiUpdate(struct xmp_module_info* minfo,struct xmp_frame_info* 
     ui->StatusLabel->setText(moduleInfo.toUpper());
 
 
-
-
-    static int patternIndex = -1;
-    if(patternIndex != finfo->pattern)
+    static int posIndex = -1;
+    if(posIndex != finfo->pos)
     {
         QStringList tracks;
 
-        for(int j = 0; j < finfo->num_rows / 2; j++)
+        //add last haft of previous pattern if any
+        for(int j = finfo->num_rows / 2; j < finfo->num_rows; j++)
         {
-            // add dummy rows
-            QString row;
-            tracks.append(row);
+            if(finfo->pos == 0)
+            {
+                // add dummy rows
+                QString row;
+                tracks.append(row);
+            }else
+            {
+                QString row;
+
+                row.append(row.asprintf("%02X|", j));
+                for (int i = 0; i < minfo->mod->chn; i++)
+                {
+                    int prevPatternIndex = minfo->mod->xxo[finfo->pos - 1];
+                    int track = minfo->mod->xxp[prevPatternIndex]->index[i];
+
+                    struct xmp_event *event = &minfo->mod->xxt[track]->event[j];
+
+
+                    if (event->note > 0x80) {
+                        row.append("=== ");
+                    } else if (event->note > 0) {
+                        int note = event->note - 1;
+                        row.append(row.asprintf("%s%d ", note_name[note % 12], note / 12));
+                    } else {
+                        row.append("--- ");
+                    }
+
+                    if (event->ins > 0) {
+                        row.append(row.asprintf("%02X ", event->ins));
+                    } else {
+                        row.append("-- ");
+                    }
+
+                    if (event->fxt > 0) {
+                        row.append(row.asprintf("%X%02X", event->fxt, event->fxp));
+                    } else {
+                        row.append("---");
+                    }
+
+                    row.append("|");
+                }
+                tracks.append(row);
+
+            }
         }
 
-
+        //add current pattern
         for(int j = 0; j < finfo->num_rows; j++)
         {
 
             QString row;
+
+            row.append(row.asprintf("%02X|", j));
             for (int i = 0; i < minfo->mod->chn; i++)
             {
                 int track = minfo->mod->xxp[finfo->pattern]->index[i];
 
                 struct xmp_event *event = &minfo->mod->xxt[track]->event[j];
+
+                //update channel progressbars
+                QProgressBar* cpb = channelProgessBars.at(i);
+                cpb->setValue(finfo->channel_info[i].volume);
+
 
                 if (event->note > 0x80) {
                     row.append("=== ");
@@ -319,18 +394,60 @@ void MainWindow::guiUpdate(struct xmp_module_info* minfo,struct xmp_frame_info* 
             tracks.append(row);
         }
 
-        for(int j = 0; j < finfo->num_rows / 2; j++)
+        // add first half of next pattern if any
+        for(int j = 0; j <  finfo->num_rows / 2; j++)
         {
-            // add dummy rows
-            QString row;
-            tracks.append(row);
+            if(finfo->pos == minfo->mod->len - 1)
+            {
+                // add dummy rows
+                QString row;
+                tracks.append(row);
+            }else
+            {
+                QString row;
+
+                row.append(row.asprintf("%02X|", j));
+                for (int i = 0; i < minfo->mod->chn; i++)
+                {
+                    int nextPatternIndex = minfo->mod->xxo[finfo->pos + 1];
+                    int track = minfo->mod->xxp[nextPatternIndex]->index[i];
+
+                    struct xmp_event *event = &minfo->mod->xxt[track]->event[j];
+
+
+                    if (event->note > 0x80) {
+                        row.append("=== ");
+                    } else if (event->note > 0) {
+                        int note = event->note - 1;
+                        row.append(row.asprintf("%s%d ", note_name[note % 12], note / 12));
+                    } else {
+                        row.append("--- ");
+                    }
+
+                    if (event->ins > 0) {
+                        row.append(row.asprintf("%02X ", event->ins));
+                    } else {
+                        row.append("-- ");
+                    }
+
+                    if (event->fxt > 0) {
+                        row.append(row.asprintf("%X%02X", event->fxt, event->fxp));
+                    } else {
+                        row.append("---");
+                    }
+
+                    row.append("|");
+                }
+                tracks.append(row);
+
+            }
         }
 
         ui->noteList->clear();
         ui->noteList->addItems(tracks);
     }else
     {
-        patternIndex = finfo->pattern;
+        posIndex = finfo->pos;
 
     }
     ui->noteList->setCurrentRow(finfo->row + finfo->num_rows / 2);
@@ -338,7 +455,7 @@ void MainWindow::guiUpdate(struct xmp_module_info* minfo,struct xmp_frame_info* 
     //adjust notelist scroll
     QScrollBar *sb = ui->noteList->verticalScrollBar();
     //int scrollpos = ((sb->maximum() + sb->minimum()) / 4) + (sb->maximum() + sb->minimum()) * ((qreal)finfo->row / (finfo->num_rows * 2));
-    int scrollpos = sb->singleStep() *  finfo->num_rows / 4;
+    int scrollpos = sb->singleStep() *  finfo->num_rows / 3;
     scrollpos += sb->singleStep()  * finfo->row;
     sb->setValue(scrollpos);
 

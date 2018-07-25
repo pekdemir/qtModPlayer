@@ -102,7 +102,7 @@ QStringList XmpModulePlayer::getInstrumentNames()
     for(int i=1; i <= mi.mod->ins; i++)
     {
         QString str;
-        ilist.append(str.sprintf("%02d)%s", i, mi.mod->xxi[i].name));
+        ilist.append(str.sprintf("%02X|%s", i, mi.mod->xxi[i].name));
     }
 
     return ilist;
@@ -121,6 +121,11 @@ qint32 XmpModulePlayer::getModuleBPM()
 qint32 XmpModulePlayer::getModuleSpeed()
 {
     return mi.mod->spd;
+}
+
+qint32 XmpModulePlayer::getChannelNumber()
+{
+    return mi.mod->chn;
 }
 
 void XmpModulePlayer::setPosition(qint32 pos)
