@@ -22,6 +22,8 @@ public:
     void addChildren(QTreeWidgetItem* item,QString filePath);
     void initLoadModule(QString path);
 
+    void fillTreeWidget(QString path);
+
 private slots:
     void on_playPauseButton_clicked();
     void on_stopButton_clicked();
@@ -40,12 +42,19 @@ private slots:
 
     void on_progessSlider_sliderReleased();
 
+    void on_actionOpen_triggered();
+
+    void on_actionExit_triggered();
+
+    void on_actionAbout_triggered();
+
 private:
     bool isSliderPressed;
     Ui::MainWindow *ui;
     XmpModulePlayer *player;
     QStringList supportedFileTypes;
     QList<QProgressBar*> channelProgessBars;
+    QString settingsPath;
 
 };
 

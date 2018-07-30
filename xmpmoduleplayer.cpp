@@ -36,9 +36,7 @@ void XmpModulePlayer::loadModule(char * filename)
     if(xmp_load_module(ctx, filename) != 0)
     {
         //printf("Error on module loading!\n");
-        QMessageBox messageBox;
-        messageBox.critical(0,"Error","Unsupported module format!");
-        messageBox.setFixedSize(500,200);
+        throw "Error on module loading!\n";
         return;
     }
     xmp_get_module_info(ctx, &mi);

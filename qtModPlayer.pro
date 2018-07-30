@@ -23,9 +23,12 @@ DEFINES += QT_DEPRECATED_WARNINGS
 QMAKE_LFLAGS += -Wl,-rpath,"'\$$ORIGIN'"
 
 # Input
-HEADERS += mainwindow.h proxydevice.h xmpmoduleplayer.h
-FORMS += mainwindow.ui
-SOURCES += main.cpp mainwindow.cpp xmpmoduleplayer.cpp
+HEADERS += mainwindow.h proxydevice.h xmpmoduleplayer.h \
+    aboutdialog.h
+FORMS += mainwindow.ui \
+    aboutdialog.ui
+SOURCES += main.cpp mainwindow.cpp xmpmoduleplayer.cpp \
+    aboutdialog.cpp
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../Downloads/libxmp-4.4.1/lib/release/ -lxmp
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../Downloads/libxmp-4.4.1/lib/debug/ -lxmp

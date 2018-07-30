@@ -9,8 +9,51 @@
 #include <QByteArray>
 #include <QTimer>
 #include <QtWidgets>
+#include <QSettings>
+#include "aboutdialog.h"
 
 
+void MainWindow::fillTreeWidget(QString path)
+{
+    ui->treeWidget->clear();
+
+    QDir* rootDir = new QDir(path);
+    QFileInfoList filesList = rootDir->entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs |QDir::Files);
+
+    foreach(QFileInfo fileInfo, filesList)
+    {
+      if(fileInfo.isFile() && fileInfo.suffix() != QString("mod") && fileInfo.suffix() != QString("xm") && fileInfo.suffix() != QString("it") && fileInfo.suffix() != QString("s3m"))
+        continue;
+
+      QTreeWidgetItem* item = new QTreeWidgetItem();
+      item->setText(0,fileInfo.completeBaseName());
+
+      if(fileInfo.isFile())
+      {
+        item->setText(1,QString::number(fileInfo.size()));
+        //item->setText(2,fileInfo.suffix());
+        if(fileInfo.suffix() == QString("mod"))
+            item->setIcon(0,QIcon(":/icon/music_file_mod_icon.png"));
+        else if(fileInfo.suffix() == QString("it"))
+            item->setIcon(0,QIcon(":/icon/music_file_it_icon.png"));
+        else if(fileInfo.suffix() == QString("s3m"))
+            item->setIcon(0,QIcon(":/icon/music_file_s3m_icon.png"));
+        else
+            item->setIcon(0,QIcon(":/icon/music_file_xm_icon.png"));
+
+        item->setData(0, Qt::UserRole, fileInfo.filePath());
+      }
+
+      if(fileInfo.isDir())
+      {
+        item->setIcon(0,QIcon(":/icon/folder.png"));
+        addChildren(item,fileInfo.filePath());
+      }
+
+      ui->treeWidget->addTopLevelItem(item);
+    }
+    ui->treeWidget->resizeColumnToContents(0);
+}
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -59,42 +102,12 @@ MainWindow::MainWindow(QWidget *parent) :
     //headerItem->setText(3,QString("Path"));
     ui->treeWidget->setHeaderItem(headerItem);
 
-    QDir* rootDir = new QDir("/home/ubuntu/Music");
-    QFileInfoList filesList = rootDir->entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs |QDir::Files);
+    settingsPath = QDir::currentPath() + "/config.ini";
+    qDebug() << settingsPath;
+    QSettings settings(settingsPath, QSettings::NativeFormat);
+    QString path = settings.value("default_path", QString("/home/ubuntu/Music")).toString();
 
-    foreach(QFileInfo fileInfo, filesList)
-    {
-      if(fileInfo.isFile() && fileInfo.suffix() != QString("mod") && fileInfo.suffix() != QString("xm") && fileInfo.suffix() != QString("it") && fileInfo.suffix() != QString("s3m"))
-        continue;
-
-      QTreeWidgetItem* item = new QTreeWidgetItem();
-      item->setText(0,fileInfo.completeBaseName());
-
-      if(fileInfo.isFile())
-      {
-        item->setText(1,QString::number(fileInfo.size()));
-        //item->setText(2,fileInfo.suffix());
-        if(fileInfo.suffix() == QString("mod"))
-            item->setIcon(0,QIcon(":/icon/music_file_mod_icon.png"));
-        else if(fileInfo.suffix() == QString("it"))
-            item->setIcon(0,QIcon(":/icon/music_file_it_icon.png"));
-        else if(fileInfo.suffix() == QString("s3m"))
-            item->setIcon(0,QIcon(":/icon/music_file_s3m_icon.png"));
-        else
-            item->setIcon(0,QIcon(":/icon/music_file_xm_icon.png"));
-
-        item->setData(0, Qt::UserRole, fileInfo.filePath());
-      }
-
-      if(fileInfo.isDir())
-      {
-        item->setIcon(0,QIcon(":/icon/folder.png"));
-        addChildren(item,fileInfo.filePath());
-      }
-
-      ui->treeWidget->addTopLevelItem(item);
-    }
-    ui->treeWidget->resizeColumnToContents(0);
+    fillTreeWidget(path);
 }
 
 void MainWindow::initLoadModule(QString path)
@@ -103,7 +116,15 @@ void MainWindow::initLoadModule(QString path)
     //ui->playPauseButton->setText(tr("Pause"));
     ui->playPauseButton->setIcon(QIcon(":/icon/pause.png"));
     QByteArray by = path.toLocal8Bit();
-    player->loadModule(by.data());
+    try{
+        player->loadModule(by.data());
+    }catch(const char* msg)
+    {
+        QMessageBox messageBox;
+        messageBox.critical(0,"Error", msg);
+        messageBox.setFixedSize(500,200);
+        return;
+    }
     player->startModule();
     //MainWindow::setWindowTitle(QString("QtModPlayer [%1]").arg(player->getModuleTitle()));
 
@@ -326,7 +347,7 @@ void MainWindow::guiUpdate(struct xmp_module_info* minfo,struct xmp_frame_info* 
                         row.append("=== ");
                     } else if (event->note > 0) {
                         int note = event->note - 1;
-                        row.append(row.asprintf("%s%d ", note_name[note % 12], note / 12));
+                        row.append(row.asprintf("%s%X ", note_name[note % 12], note / 12));
                     } else {
                         row.append("--- ");
                     }
@@ -338,9 +359,9 @@ void MainWindow::guiUpdate(struct xmp_module_info* minfo,struct xmp_frame_info* 
                     }
 
                     if (event->fxt > 0) {
-                        row.append(row.asprintf("%X%02X", event->fxt, event->fxp));
+                        row.append(row.asprintf("%2X%02X", event->fxt, event->fxp));
                     } else {
-                        row.append("---");
+                        row.append("----");
                     }
 
                     row.append("|");
@@ -372,7 +393,7 @@ void MainWindow::guiUpdate(struct xmp_module_info* minfo,struct xmp_frame_info* 
                     row.append("=== ");
                 } else if (event->note > 0) {
                     int note = event->note - 1;
-                    row.append(row.asprintf("%s%d ", note_name[note % 12], note / 12));
+                    row.append(row.asprintf("%s%X ", note_name[note % 12], note / 12));
                 } else {
                     row.append("--- ");
                 }
@@ -384,9 +405,9 @@ void MainWindow::guiUpdate(struct xmp_module_info* minfo,struct xmp_frame_info* 
                 }
 
                 if (event->fxt > 0) {
-                    row.append(row.asprintf("%X%02X", event->fxt, event->fxp));
+                    row.append(row.asprintf("%2X%02X", event->fxt, event->fxp));
                 } else {
-                    row.append("---");
+                    row.append("----");
                 }
 
                 row.append("|");
@@ -419,7 +440,7 @@ void MainWindow::guiUpdate(struct xmp_module_info* minfo,struct xmp_frame_info* 
                         row.append("=== ");
                     } else if (event->note > 0) {
                         int note = event->note - 1;
-                        row.append(row.asprintf("%s%d ", note_name[note % 12], note / 12));
+                        row.append(row.asprintf("%s%X ", note_name[note % 12], note / 12));
                     } else {
                         row.append("--- ");
                     }
@@ -431,9 +452,9 @@ void MainWindow::guiUpdate(struct xmp_module_info* minfo,struct xmp_frame_info* 
                     }
 
                     if (event->fxt > 0) {
-                        row.append(row.asprintf("%X%02X", event->fxt, event->fxp));
+                        row.append(row.asprintf("%2X%02X", event->fxt, event->fxp));
                     } else {
-                        row.append("---");
+                        row.append("----");
                     }
 
                     row.append("|");
@@ -564,4 +585,31 @@ void MainWindow::on_progessSlider_sliderReleased()
 
     isSliderPressed = false;
 
+}
+
+void MainWindow::on_actionOpen_triggered()
+{
+    QString filename =  QFileDialog::getExistingDirectory(
+             this,
+             "Open path",
+             QDir::currentPath());
+
+    //qDebug() << filename;
+    QSettings settings(settingsPath, QSettings::NativeFormat);
+    settings.setValue("default_path", filename);
+
+    fillTreeWidget(filename);
+
+
+}
+
+void MainWindow::on_actionExit_triggered()
+{
+    QApplication::quit();
+}
+
+void MainWindow::on_actionAbout_triggered()
+{
+    AboutDialog dialog(this);
+    dialog.show();
 }
