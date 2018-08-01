@@ -7,6 +7,7 @@
 #include <QListWidgetItem>
 #include <QTreeWidgetItem>
 #include <QProgressBar>
+#include "trackview.h"
 
 namespace Ui {
 class MainWindow;
@@ -53,8 +54,8 @@ private:
     Ui::MainWindow *ui;
     XmpModulePlayer *player;
     QStringList supportedFileTypes;
-    QList<QProgressBar*> channelProgessBars;
     QString settingsPath;
+    TrackView trackview;
 
 };
 

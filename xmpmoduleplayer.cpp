@@ -52,9 +52,13 @@ void XmpModulePlayer::startModule()
 {
     if(player_state == IDLE)
     {
+
+        audioThread = new QThread();
+        ourDevice->moveToThread(audioThread);
         xmp_start_player(ctx, 44100, 0);
         audio->start(ourDevice);
         player_state = PLAYING;
+        audioThread->start();
     }else if(player_state == PLAYING)
     {
         audio->suspend();
@@ -196,5 +200,8 @@ void XmpModulePlayer::stopModule()
         audio->stop();
         xmp_end_player(ctx);
         player_state = IDLE;
+        audioThread->terminate();
+        audioThread->wait();
+        delete audioThread;
     }
 }

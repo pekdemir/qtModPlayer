@@ -11,6 +11,7 @@
 #include <QIODevice>
 #include <QByteArray>
 #include <proxydevice.h>
+#include <QThread>
 
 enum PLAY_STATE{IDLE, PLAYING, PAUSED};
 
@@ -66,6 +67,7 @@ private:
     ProxyDevice *ourDevice;
     PLAY_STATE player_state;
     qint8 isLoop;
+    QThread *audioThread;
 
 };
 

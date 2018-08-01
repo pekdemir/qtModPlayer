@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1175</width>
-    <height>800</height>
+    <height>906</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -306,9 +306,9 @@
     <property name="geometry">
      <rect>
       <x>360</x>
-      <y>350</y>
+      <y>360</y>
       <width>801</width>
-      <height>351</height>
+      <height>381</height>
      </rect>
     </property>
     <property name="title">
@@ -316,57 +316,48 @@
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
-      <widget class="QListWidget" name="noteList">
-       <property name="verticalScrollBarPolicy">
-        <enum>Qt::ScrollBarAlwaysOn</enum>
+      <widget class="QScrollArea" name="scrollArea">
+       <property name="widgetResizable">
+        <bool>true</bool>
        </property>
+       <widget class="QWidget" name="scrollAreaWidgetContents">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>775</width>
+          <height>336</height>
+         </rect>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_5">
+         <item row="0" column="0">
+          <layout class="QHBoxLayout" name="tracksHLayout">
+           <property name="spacing">
+            <number>5</number>
+           </property>
+           <property name="sizeConstraint">
+            <enum>QLayout::SetFixedSize</enum>
+           </property>
+          </layout>
+         </item>
+        </layout>
+       </widget>
       </widget>
      </item>
     </layout>
    </widget>
-   <widget class="QScrollArea" name="channelBarsScrollArea">
+   <widget class="QListWidget" name="noteList">
     <property name="geometry">
      <rect>
-      <x>360</x>
-      <y>710</y>
-      <width>801</width>
-      <height>41</height>
+      <x>10</x>
+      <y>750</y>
+      <width>777</width>
+      <height>108</height>
      </rect>
     </property>
     <property name="verticalScrollBarPolicy">
-     <enum>Qt::ScrollBarAlwaysOff</enum>
+     <enum>Qt::ScrollBarAlwaysOn</enum>
     </property>
-    <property name="widgetResizable">
-     <bool>true</bool>
-    </property>
-    <widget class="QWidget" name="scrollAreaWidgetContents_2">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>0</y>
-       <width>799</width>
-       <height>39</height>
-      </rect>
-     </property>
-     <widget class="QWidget" name="horizontalLayoutWidget">
-      <property name="geometry">
-       <rect>
-        <x>39</x>
-        <y>9</y>
-        <width>751</width>
-        <height>20</height>
-       </rect>
-      </property>
-      <layout class="QHBoxLayout" name="channelBarHLayout">
-       <property name="spacing">
-        <number>1</number>
-       </property>
-       <property name="sizeConstraint">
-        <enum>QLayout::SetFixedSize</enum>
-       </property>
-      </layout>
-     </widget>
-    </widget>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
