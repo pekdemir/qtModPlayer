@@ -25,6 +25,11 @@ public:
 
     void fillTreeWidget(QString path);
 
+signals:
+    void startPlayerSignal();
+    void stopPlayerSignal();
+
+
 private slots:
     void on_playPauseButton_clicked();
     void on_stopButton_clicked();

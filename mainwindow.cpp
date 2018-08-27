@@ -60,6 +60,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+//    player = new XmpModulePlayer(this);
     player = new XmpModulePlayer(this);
     //player->loadModule("test.it");
    // player->loadModule("theme_for_sound_1.mod");
@@ -68,10 +69,16 @@ MainWindow::MainWindow(QWidget *parent) :
     //ui->TitleLabel->setText(player->getModuleTitle());
 
     //connect((QObject*)player->getDevice(), SIGNAL(&ProxyDevice::feedAudio), (QObject*)player, SLOT(&XmpModulePlayer::feedAudioSlot), Qt::DirectConnection);
-    connect(player->getDevice(), &ProxyDevice::feedAudio, player, &XmpModulePlayer::feedAudioSlot, Qt::DirectConnection);
+//    connect(player->getDevice(), &ProxyDevice::feedAudio, player, &XmpModulePlayer::feedAudioSlot, Qt::DirectConnection);
 
     //connect player to mainwindow to update gui
-    connect(player, &XmpModulePlayer::sendFrameInfo, this, &MainWindow::guiUpdate);
+    connect(player, &XmpModulePlayer::sendFrameInfo, this, &MainWindow::guiUpdate, Qt::QueuedConnection);
+
+    connect(this, &MainWindow::startPlayerSignal, player, &XmpModulePlayer::startModule, Qt::QueuedConnection);
+
+    connect(this, &MainWindow::stopPlayerSignal, player, &XmpModulePlayer::stopModule, Qt::QueuedConnection);
+
+    player->start();
 
 //    connect(ui->posList, SIGNAL(itemClicked(QListWidgetItem*)),
 //                this, SLOT(on_posListItemSelected(QListWidgetItem*)));
@@ -112,7 +119,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
 void MainWindow::initLoadModule(QString path)
 {
-    player->stopModule();
+    //player->stopModule();
+    emit stopPlayerSignal();
     //ui->playPauseButton->setText(tr("Pause"));
     ui->playPauseButton->setIcon(QIcon(":/icon/pause.png"));
     QByteArray by = path.toLocal8Bit();
@@ -125,7 +133,8 @@ void MainWindow::initLoadModule(QString path)
         messageBox.setFixedSize(500,200);
         return;
     }
-    player->startModule();
+    //player->startModule();
+    emit startPlayerSignal();
     //MainWindow::setWindowTitle(QString("QtModPlayer [%1]").arg(player->getModuleTitle()));
 
     ui->titleEdit->setPlainText(QString("%1\n%2").arg(player->getModuleTitle(), player->getModuleType()));
@@ -476,7 +485,8 @@ void MainWindow::guiUpdate(struct xmp_module_info* minfo,struct xmp_frame_info* 
 void MainWindow::on_playPauseButton_clicked()
 {
 
-    player->startModule();
+    //player->startModule();
+    emit startPlayerSignal();
 
     PLAY_STATE state = player->getPlayerState();
     if(state == IDLE || state == PAUSED)
@@ -489,7 +499,8 @@ void MainWindow::on_playPauseButton_clicked()
 
 void MainWindow::on_stopButton_clicked()
 {
-    player->stopModule();
+    //player->stopModule();
+    emit stopPlayerSignal();
     //ui->playPauseButton->setText(tr("Play"));
     ui->playPauseButton->setIcon(QIcon(":/icon/play-button.png"));
 }

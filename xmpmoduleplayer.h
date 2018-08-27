@@ -15,17 +15,21 @@
 
 enum PLAY_STATE{IDLE, PLAYING, PAUSED};
 
-class XmpModulePlayer: public QObject
+class XmpModulePlayer: public QThread
 {
 
 Q_OBJECT
 
 public:
 
-    XmpModulePlayer(QObject* parent = 0);
+    XmpModulePlayer(QObject *parent = 0);
+
+    void run();
+
+
     void loadModule(char *);
-    void startModule();
-    void stopModule();
+//    void startModule();
+//    void stopModule();
     void pauseModule();
     void resumeModule();
     ProxyDevice* getDevice();
@@ -57,7 +61,8 @@ signals:
 
 public slots:
     void feedAudioSlot(char* data, qint64 size, qint64& wasRead);
-
+    void startModule();
+    void stopModule();
 
 private:
     xmp_context ctx;

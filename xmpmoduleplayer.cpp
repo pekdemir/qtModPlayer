@@ -1,9 +1,12 @@
 #include <xmpmoduleplayer.h>
 #include <QMessageBox>
+#include "mainwindow.h"
 
 
-XmpModulePlayer::XmpModulePlayer(QObject* parent)
+XmpModulePlayer::XmpModulePlayer(QObject* parent):
+    QThread(parent)
 {
+
     ctx = xmp_create_context();
 
     QAudioFormat format;
@@ -23,6 +26,14 @@ XmpModulePlayer::XmpModulePlayer(QObject* parent)
 
     player_state = IDLE;
     isLoop = 0;
+
+    connect(ourDevice, &ProxyDevice::feedAudio, this, &XmpModulePlayer::feedAudioSlot, Qt::DirectConnection);
+
+}
+
+void XmpModulePlayer::run()
+{
+
 }
 
 ProxyDevice* XmpModulePlayer::getDevice()
@@ -53,12 +64,10 @@ void XmpModulePlayer::startModule()
     if(player_state == IDLE)
     {
 
-        audioThread = new QThread();
-        ourDevice->moveToThread(audioThread);
         xmp_start_player(ctx, 44100, 0);
         audio->start(ourDevice);
         player_state = PLAYING;
-        audioThread->start();
+
     }else if(player_state == PLAYING)
     {
         audio->suspend();
@@ -200,8 +209,5 @@ void XmpModulePlayer::stopModule()
         audio->stop();
         xmp_end_player(ctx);
         player_state = IDLE;
-        audioThread->terminate();
-        audioThread->wait();
-        delete audioThread;
     }
 }
